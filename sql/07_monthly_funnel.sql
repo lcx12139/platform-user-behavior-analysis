@@ -1,5 +1,5 @@
--- Monthly user-level BROAD funnel; all required events within each month.
--- MySQL 8.0+. Run in numeric order on a fresh database; do not blindly rerun loads.
+-- 分析目的：月度用户级宽口径漏斗：同月内行为共现；用户可跨月重复出现。
+-- 不自动删除已有数据或汇总表；已有库请仅执行结果查询部分。
 USE user_behavior_analysis;
 
 CREATE TABLE monthly_funnel_summary (

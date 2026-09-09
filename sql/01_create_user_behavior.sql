@@ -1,5 +1,5 @@
--- Behavior fact table; preserve nonpositive prices and missing sessions.
--- MySQL 8.0+. Run in numeric order on a fresh database; do not blindly rerun loads.
+-- 分析目的：建立行为明细事实表；保留缺失会话和非正价格行为。
+-- 不自动删除已有数据或汇总表；已有库请仅执行结果查询部分。
 USE user_behavior_analysis;
 
 CREATE TABLE IF NOT EXISTS user_behavior (

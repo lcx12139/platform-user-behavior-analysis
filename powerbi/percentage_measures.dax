@@ -1,0 +1,15 @@
+// 在 Power BI 中逐个创建度量值，格式设为百分比、保留两位小数。
+// 来源 SQL 已乘以100，此处除以100后再格式化；仅适用于单行 bi_conversion_kpi。
+// 保留既有度量名称及表字段标识，避免破坏引用。
+
+View to Cart % =
+    DIVIDE(SUM('user_behavior_analysis bi_conversion_kpi'[view_to_cart_rate]), 100)
+
+Cart to Purchase % =
+    DIVIDE(SUM('user_behavior_analysis bi_conversion_kpi'[cart_to_purchase_rate]), 100)
+
+Overall % =
+    DIVIDE(SUM('user_behavior_analysis bi_conversion_kpi'[overall_rate]), 100)
+
+Abandonment % =
+    DIVIDE(SUM('user_behavior_analysis bi_conversion_kpi'[abandonment_rate]), 100)

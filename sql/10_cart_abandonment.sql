@@ -1,5 +1,5 @@
--- All cart sessions, no view requirement. First purchase must follow first cart to convert.
--- MySQL 8.0+. Run in numeric order on a fresh database; do not blindly rerun loads.
+-- 分析目的：全部加购会话的放弃分析，不要求浏览；首次购买必须晚于首次加购才记为转化。
+-- 不自动删除已有数据或汇总表；已有库请仅执行结果查询部分。
 USE user_behavior_analysis;
 
 WITH cart_summary AS (

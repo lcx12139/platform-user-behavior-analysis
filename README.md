@@ -1,57 +1,120 @@
-# Platform User Behavior & Growth Analysis
+# 互联网平台用户行为与增长分析
 
-互联网平台用户行为与增长分析 · Conversion, sessions and user operations
+基于近 2,000 万条用户行为日志，使用 **Python + MySQL + Power BI** 分析活跃、转化、留存与用户价值，并通过用户结构、时间和商品价格带下钻，解释指标变化能够支持到什么程度。
 
-An analysis portfolio built around **20.69M raw events**, **19.58M cleaned events** and **1.64M observed users**, using Python and MySQL to distinguish long-window behavioral conversion from conversion within a visit.
+这是面向数据分析、商业分析及运营分析岗位的个人作品集。数据来自化妆品电商，重点是可迁移的平台行为分析方法；本文结论仅适用于该数据集，不代表旅游、游戏等其他业务的实际表现。
 
-**Power BI dashboard: In progress**
+**项目状态：** 已完成经营指标、三种漏斗、购物车流失、用户结构、同期群留存、RFM、指标异动和四页 Power BI 看板。看板原文件与截图已归档；本次发现的总用户口径和显示标题问题见[看板核对说明](docs/看板核对与待办.md)。
 
-## 1. Project Overview
+## 数据与技术栈
 
-This project examines activity, funnel progression and cart abandonment in five months of cosmetics e-commerce logs. The focus is platform behavior and operational analysis: methods that can inform questions in travel, gaming and other internet products, with domain-specific definitions and validation. Results here describe this dataset only.
+| 项目 | 内容 |
+|---|---|
+| 数据源 | [Kaggle：E-Commerce Events History in Cosmetics Shop](https://www.kaggle.com/datasets/mkechinov/ecommerce-events-history-in-cosmetics-shop) |
+| 观察期 | 2019-10—2020-02，共五个月 |
+| 原始日志 | 20,692,840 条 |
+| 规范化后去重 | 1,109,098 条，约 5.36% |
+| 清洗后日志 | 19,583,742 条 |
+| 观察期独立用户 | 1,639,358 人；不等于注册用户 |
+| 技术栈 | Python、pandas、MySQL 8.0+、SQL、Power BI、Git / GitHub |
 
-The project combines data cleaning, database loading, reusable summary tables and business interpretation. Retention, RFM and user segmentation are planned extensions, not completed analyses.
+原始与清洗后行为明细因体积较大不上传；获取方式见 [data/README.md](data/README.md)。仓库中的小型清洗汇总只包含月度统计。
 
-## 2. Business Questions
-
-- How does observed activity change across days and months?
-- How much does measured conversion change when event order and sessions are required?
-- Does monthly funnel variation occur before or after cart addition?
-- How much cart abandonment includes an explicit removal event?
-- How can repeat analysis avoid repeatedly aggregating nearly 20M fact rows?
-
-## 3. Dataset
-
-Source: [E-Commerce Events History in Cosmetics Shop — Kaggle](https://www.kaggle.com/datasets/mkechinov/ecommerce-events-history-in-cosmetics-shop), October 2019–February 2020. Source access and applicable dataset terms remain with the publisher; this repository's code license does not license the dataset.
-
-| Measure | Value |
-|---|---:|
-| Raw events | 20,692,840 |
-| Duplicate events removed | 1,109,098 (5.36%) |
-| Cleaned events | 19,583,742 |
-| Distinct observed users | 1,639,358 |
-
-Due to dataset size, raw behavioral logs are not included in this repository.
-
-**Evidence status:** results below come from the project owner's completed analysis. Local cleaning totals and the existing broad-funnel export provide supporting artifacts. The repository refactor did not rerun the MySQL analyses. Numerical results are not embedded in executable analysis SQL. See [findings](docs/findings.md) and [review notes](docs/review_notes.md).
-
-## 4. Data Pipeline
+## 分析框架
 
 ```mermaid
 flowchart LR
-    A[Kaggle monthly CSVs] --> B[Python normalization and deduplication]
-    B --> C[MySQL LOAD DATA LOCAL INFILE]
-    C --> D[user_behavior fact table]
-    D --> E[User, month and session summaries]
-    E --> F[SQL metrics and documented findings]
-    F -. planned .-> G[Power BI dashboard]
+ A[月度原始日志] --> B[Python清洗与质量检查]
+ B --> C[MySQL行为明细表]
+ C --> D[用户与会话汇总表]
+ D --> E[经营指标与漏斗]
+ D --> F[用户结构与留存]
+ D --> G[RFM用户价值]
+ E --> H[转化率异动下钻]
+ F --> H
+ E --> I[四页Power BI看板]
+ F --> I
+ G --> I
+ H --> I
 ```
 
-### Reproduce
+分析依次回答：谁在活跃、哪里没有完成转化、用户是否回来、哪些购买用户贡献收入，以及指标变化主要体现在哪些用户组和日期。
 
-**Already using MySQL Workbench with existing data?** Follow the [Workbench guide](docs/workbench_guide.md). Run result queries against existing summaries; do not repeat loads or existing table/index creation.
+## 核心发现
 
-Use Python 3.10+ and MySQL 8.0+. Install `requirements.txt` in a virtual environment. Download the five source CSVs into `data/raw/`, preserving their original filenames.
+1. **统计口径会显著改变漏斗读数。** 用户级宽口径、用户级首次时间严格近似、Session（访问会话）级首次时间严格近似的整体转化率分别为 **6.56%、4.49%、1.67%**，不能混为同一种即时转化率。
+2. **购物车流失规模较大。** 全部加购会话放弃率为 **87.29%**；其中 **74.48%** 被首次时间算法归为“静默放弃”，并不保证整个会话从未出现移除。
+3. **人数占比不等于收入贡献。** 2020-02 已观察老用户占月活跃用户 MAU 的 **23.83%**，贡献正价格购买收入 Revenue 的 **58.26%**。
+4. **首次活跃后的次月回访较弱。** Cohort（按首次观察月份划分的同期群）中，2019-11—2020-01 的次月 M1 留存约 **9%—11%**；2019-10 受观察窗口起点影响，不能直接作为真实新客同期群比较。
+5. **收入向部分高价值用户集中。** RFM（最近购买间隔、购买频次、累计金额）核心价值用户占付费用户 **6.38%**，贡献收入 **24.52%**。
+6. **复购用户贡献高于人数占比。** 以不同正价格购买 Session 近似订单频次，复购用户占 **21.09%**，贡献收入 **48.04%**。
+7. **11月高转化主要体现为组内差异。** 2019-11 比12月的月度宽口径整体转化率高 **1.68 个百分点**；按既定分解公式，结构效应为 **−0.46**、组内转化效应为 **+2.14 个百分点**。
+
+详细结果、方法与限制见[项目分析报告](docs/项目分析报告.md)。数值以用户确认结果、当前最终 SQL 和本地模型汇总核对为依据；本次整理没有重新运行生产库的全部分析。
+
+## 指标异动分析：从现象走到证据边界
+
+```mermaid
+flowchart TD
+ A[11月8.30%与12月6.62%差异] --> B[新老用户结构分解]
+ B --> C[日级下钻]
+ C --> D[识别11月21—24日和28—30日高峰]
+ D --> E[价格带结构及带内转化比较]
+ E --> F[品牌结构比较]
+ F --> G[品类字段质量检查]
+ G --> H[描述用户组和日期差异，保留因果边界]
+```
+
+高峰日期的正价格购买更集中于 `(0,5)` 价格带：购买事件占比由普通日期的 **70.14%** 升至 **75.49%**。但在各价格带内，高峰日期的用户日转化率仍普遍较高；价格结构变化不足以单独解释差异。
+
+2019-11 的 `category_code` 缺失率为 **98.32%**，因此没有将其用于最终品类归因。没有营销活动、渠道或支付失败字段，不能把高峰解释为某次促销或某个运营活动的效果。
+
+## Power BI 看板展示
+
+文件：[用户行为与增长分析.pbix](powerbi/用户行为与增长分析.pbix)。以下均为用户提供的真实截图，未对截图数值进行重绘或修改。
+
+| 页面 | 内容 |
+|---|---|
+| 经营概览 | 用户规模、收入、MAU、新老用户结构及付费趋势 |
+| 转化漏斗与购物车流失 | Session 漏斗、放弃率、静默放弃及月度变化 |
+| 用户结构与 Cohort 留存 | 活跃度、付费率、收入贡献和留存矩阵 |
+| 用户价值与增长洞察 | RFM 分层、复购结构及转化率差异分解 |
+
+> **原始快照差异：** 第1页总用户显示 1,638,498，来自仅覆盖三类行为的旧汇总；文档最终口径为 1,639,358。SQL 已修正，PBIX 尚需在 Desktop 刷新。第2页 87.29% 卡片应标“购物车放弃率”，月度图有重复图例名。截图中的英文副标题及 `new/old` 图例保留原样，中文含义见看板说明。
+
+<details>
+<summary>展开四页真实截图</summary>
+
+### 经营概览（原始快照，总用户待刷新）
+![经营概览，原始总用户口径待刷新](assets/dashboard/01_经营概览.png)
+
+### 转化漏斗与购物车流失（原始快照，部分标题待修正）
+![转化漏斗与购物车流失](assets/dashboard/02_转化漏斗与购物车流失.png)
+
+### 用户结构与留存
+![用户结构与Cohort留存](assets/dashboard/03_用户结构与Cohort留存.png)
+
+### 用户价值与增长洞察
+![用户价值与增长洞察](assets/dashboard/04_用户价值与增长洞察.png)
+
+</details>
+
+看板只读审计确认包含小型汇总模型，不含用户级行为明细。连接与刷新方法见 [powerbi/README.md](powerbi/README.md)。
+
+## 指标口径与限制
+
+- 新用户仅指**观察期首次活跃用户**；2019-10 存在观察窗口起点和左截断问题。
+- 日活跃用户 DAU、MAU 和基础行为漏斗保留所有价格行为。Revenue 仅汇总 `purchase AND price > 0`；ARPU（每活跃用户平均收入）用活跃用户作分母，ARPPU（每付费用户平均收入）只用正价格购买用户作分母。
+- 没有 `order_id` 和数量字段；购买 Session 数仅近似订单频次，价格之和不称为传统订单 GMV。
+- 首次时间严格漏斗会漏掉后续有效路径，也不要求同一商品；Session 空值及标识复用仍需核查。
+- 2019-11 品类字段缺失 98.32%，品牌购买事件中 `Unknown` 约占43%，不能据此完成可靠品类归因。
+- 高峰日期是观察结果后选定的探索窗口；组内差异、价格带比较均不构成因果识别。
+
+完整定义见[指标口径说明](docs/指标口径说明.md)，数据边界见[数据质量与局限性](docs/数据质量与局限性.md)。
+
+## 工程实现与运行
+
+原始明细接近2,000万行，直接重复执行用户级条件聚合曾出现超过10分钟的运行情况。项目采用“明细事实表 → 分析粒度汇总 → 查询与看板”的结构，复用用户月度画像、首次行为和 RFM 汇总。索引按事件过滤、用户/日期查询设计，不宣称未测量的加速倍数。
 
 ```bash
 python -m pip install -r requirements.txt
@@ -59,146 +122,26 @@ python python/clean_data.py
 python python/data_quality_check.py
 ```
 
-Existing outputs are protected: use `--output-dir data/cleaned_rerun` for a separate cleaning run, then explicitly update import paths if you want to use those files. A complete month is loaded into memory; allow memory for the dataframe and deduplication copies.
+默认清洗目录已有文件时程序拒绝覆盖；复跑请指定新的 `--output-dir`。已有数据库用户优先阅读 [Workbench 运行指南](docs/workbench_guide.md) 和 [SQL 执行索引](sql/README.md)，不要重复导入、盲目重建汇总或整批执行初始化脚本。
 
-Execute `sql/00_...` through `sql/11_...` in numeric order in a **fresh development database**. SQL files select `user_behavior_analysis` explicitly. Edit CSV paths in `02_load_data.sql` for another machine. Enable LOCAL INFILE in both server and client settings; provide credentials through your client, never in source files. Inspect `SHOW WARNINGS` immediately after each import and validate row counts before continuing.
-
-For an existing database, inspect existing tables and indexes first. Loads are append-only and **must not be blindly rerun**. Summary scripts build static snapshots and will fail if those tables already exist. No script drops or truncates existing tables. Rebuild summaries deliberately in a separate database after data changes. SQL has been organized for MySQL; live execution remains to be verified in the owner's environment.
-
-## 5. Data Cleaning
-
-- Read `category_id` as a string to preserve long identifiers.
-- Trim and lowercase event types; parse timestamps as UTC and store timezone-naive UTC values.
-- Coerce prices to numeric, then remove full-row duplicates **within each monthly file**, before filling missing brand/category values.
-- Fill missing `brand` and `category_code` with `Unknown`.
-- Preserve missing sessions, negative prices and zero prices in behavioral logs.
-- Add date, month, hour, weekday (Monday = 0) and weekend fields.
-
-**Behavior and monetary metrics use different quality rules.** Behavior metrics retain all prices. Purchase Revenue includes only `event_type = 'purchase' AND price > 0`; ARPU divides it by all active users, and ARPPU divides it by positive-price purchasing users in the same period. The ARPPU denominator was explicitly confirmed during this refactor.
-
-February contains 53,812 zero-price events: 31,442 cart, 17,136 remove, 5,234 view and zero purchase events (owner-reported; see validation notes). They are not deleted. Details: [data dictionary](docs/data_dictionary.md) and [methodology](docs/methodology.md).
-
-## 6. Database Design
-
-`user_behavior_analysis.user_behavior` retains event-level detail. `category_id` uses `VARCHAR(30)`; price uses `DECIMAL(10,2)`. There is no supplied event ID, order ID or quantity.
-
-| Summary table | Grain | Purpose |
-|---|---|---|
-| `user_funnel_summary` | user | View/cart/purchase presence flags |
-| `monthly_funnel_summary` | month × user | Within-month presence flags |
-| `user_first_event` | user | First view/cart/purchase times |
-| `session_first_event` | session identifier | First view/cart/purchase/remove times |
-
-Sessions use the supplied identifier, not a reconstructed inactivity threshold. Missing or shared identifiers are a validation concern; see methodology.
-
-## 7. Performance Optimization
-
-The original repeated `GROUP BY user_id` with conditional maxima over nearly 20M rows was reported to run for more than ten minutes in some attempts. The workflow instead builds reusable summaries through event-specific aggregation and key-based inserts/updates, then queries those smaller tables.
-
-The target fact-table indexes are `idx_user_date(user_id, event_date)` and `idx_event_user(event_type, user_id)`. They align with user/date and event-filtered queries. The legacy index file differed from the owner-confirmed list; the organized script uses the confirmed target and does not drop existing indexes. Inspect actual indexes before running it.
-
-This moves substantial work into summary construction; it does not eliminate the cost of scanning data. No measured speedup multiplier is claimed. Query plans, summary build times and before/after timings remain to be collected on a documented machine.
-
-## 8. KPI Framework
-
-| Metric | Definition |
-|---|---|
-| DAU / MAU | Distinct users with any recorded behavior per day/month |
-| Purchasing users | Distinct users with any purchase event per day |
-| Purchase Revenue | Sum of positive purchase-event prices |
-| ARPU | Purchase Revenue / active users in the same period |
-| ARPPU | Purchase Revenue / positive-price purchasing users in the same period |
-| First-observed users | Users grouped by their earliest observed date in the five-month window |
-
-Revenue is an event-price measure, not traditional order GMV. No registration timestamp is available. SQL for basic metrics is included; unavailable KPI outputs are not invented.
-
-## 9. Funnel Analysis
-
-The **user-level broad funnel** tests co-occurrence anywhere in the observation window, without event order or session constraints.
-
-| Stage | Users |
-|---|---:|
-| View | 1,597,754 |
-| View + cart | 358,026 |
-| View + cart + purchase | 104,757 |
-
-View → cart: **22.41%**; cart → purchase: **29.26%**; overall: **6.56%**. Each later stage is nested within the preceding stage. These are not immediate conversion rates.
-
-## 10. Strict Funnel Analysis
-
-The **user-level strict funnel** requires `first_view_time < first_cart_time < first_purchase_time`. It yields 269,901 ordered view/cart users and 71,783 completed users: **16.89%**, **26.60%** and **4.49%**, respectively.
-
-This is a first-event approximation, not full path recognition. A user with an early cart followed by a later valid view/cart/purchase path can be excluded. Broad co-occurrence gives a higher rate than this approximation; neither is a validated ground-truth conversion measure.
-
-## 11. Session Funnel Analysis
-
-Within each supplied session identifier, the same first-event conditions yield 4,280,702 view sessions, 587,038 ordered view/cart sessions and 71,321 completed sessions.
-
-| Definition | View → cart | Cart → purchase | Overall |
-|---|---:|---:|---:|
-| User-level broad | 22.41% | 29.26% | 6.56% |
-| User-level strict approximation | 16.89% | 26.60% | 4.49% |
-| Session-level strict approximation | 13.71% | 12.15% | 1.67% |
-
-Long-window user-level conversion is higher than conversion within a recorded session. These levels use different populations and denominators; their difference is not an incremental causal effect or a complete user-lifecycle estimate.
-
-## 12. Cart Abandonment Analysis
-
-Among **985,781 cart sessions**, 125,246 have first purchase after first cart; 860,535 do not, giving **87.29% abandonment** and **12.71% conversion**. This starts with all cart sessions and does not require a prior view, unlike the strict session funnel.
-
-Of abandoned sessions, 219,608 have first remove after first cart and 640,927 do not. Thus **74.48%** are operationally classified as “silent abandonment.” This means no qualifying first-remove signal; it does not prove the complete absence of removal later in the session.
-
-## 13. Key Findings
-
-- October has the highest monthly broad view-to-cart rate (31.74%) and highest cart-session abandonment (89.35%). Higher observed cart progression coexists with lower subsequent session conversion.
-- November has the highest monthly broad overall conversion (8.30%). Compared with October, broad cart-to-purchase rises from 19.42% to 35.05%, while view-to-cart declines.
-- Most classified abandonment lacks a qualifying explicit removal signal. Monitoring remove events alone misses much of the abandonment defined here.
-
-Complete monthly tables and first-observed counts are in [findings](docs/findings.md).
-
-## 14. Business Implications
-
-Prioritize investigating the cart-to-purchase step and distinguish explicit removal from other incomplete cart sessions. Add checkout, payment outcome and error instrumentation before attributing abandonment to a cause. If additional lawful data become available, compare device, product and user segments and test interventions prospectively.
-
-These are proposed investigations, not proven causes, completed experiments or measured revenue opportunities. There is no evidence here that promotions, prices or payment failures explain monthly changes.
-
-## 15. Limitations
-
-The observation window is bounded; first observed does not mean newly registered. First-event funnels can miss valid later sequences, exclude timestamp ties and mix products. Session IDs are supplied by the source, with missing-value import behavior and multi-user collisions still requiring database checks. Cross-session purchases may occur after an apparently abandoned cart session. “Silent” is an operational first-time classification. No channel, campaign, order quantity or payment-failure data supports causal explanations.
-
-## 16. Tech Stack
-
-Python / pandas · MySQL 8.0+ / SQL · Git / GitHub repository preparation · Power BI (planned dashboard).
-
-## 17. Repository Structure
+## 项目目录
 
 ```text
 .
 ├── README.md
-├── LICENSE
-├── .gitignore
-├── requirements.txt
-├── python/
-│   ├── clean_data.py
-│   └── data_quality_check.py
-├── sql/                         # 00–11: schema, load, indexes and analysis
+├── LICENSE / .gitignore / requirements.txt
 ├── docs/
-│   ├── data_dictionary.md
-│   ├── methodology.md
-│   ├── findings.md
-│   ├── cleaning_summary.csv     # Reviewed aggregate-only exception
-│   └── review_notes.md
-├── images/README_PLACEHOLDER.md
-└── powerbi/README.md
+│   ├── 项目分析报告.md
+│   ├── 指标口径说明.md
+│   ├── 数据质量与局限性.md
+│   ├── 看板核对与待办.md
+│   ├── 整理与验证记录.md
+│   └── data_dictionary.md / cleaning_summary.csv
+├── sql/                 # 保留00—11，新增12—20和中文执行索引
+├── python/              # 清洗与只读质量检查
+├── powerbi/             # 最新PBIX、百分比度量示例及说明
+├── assets/dashboard/    # 四页真实截图与中文说明
+└── data/README.md       # 下载说明；明细文件不上传
 ```
 
-Raw/cleaned logs and original-script backups remain local and ignored. The repository contains no dashboard screenshots or fabricated PBIX file.
-
-## 18. Future Work
-
-- New vs. returning observed users and cohort retention.
-- RFM and user value segmentation with explicit observation dates.
-- Revenue structure, metric-change investigation and brand/product breakdowns.
-- Complete-path sequence validation and session-ID quality checks.
-- Reproducible query-plan and runtime benchmarks.
-- Power BI dashboard with documented KPI definitions.
+历史英文文档路径保留为中文内容或导航；旧 SQL、旧 PBIX 和布局加工脚本保存于本地 `.local/`，不重复发布。MIT 许可证原文保留以避免改变法律含义，仅覆盖代码与文档，数据源遵循原发布方条款。

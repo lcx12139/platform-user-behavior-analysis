@@ -1,3 +1,3 @@
-# Figures
+# 图片目录说明
 
-No dashboard screenshots are available yet. Add verified charts with source queries, metric definitions and reporting periods when completed. Do not use mock screenshots as evidence of completed analysis.
+原路径保留。现有四页真实Power BI截图已移到[assets/dashboard](../assets/dashboard/README.md)，不再使用未完成占位状态。

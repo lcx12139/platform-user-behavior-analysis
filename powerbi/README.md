@@ -1,5 +1,17 @@
-# Power BI
+# Power BI用户行为与增长分析看板
 
-Power BI dashboard: In progress
+已完成四页看板，最新版为[用户行为与增长分析.pbix](用户行为与增长分析.pbix)。页面依次为经营概览、转化漏斗与购物车流失、用户结构与同期群留存、用户价值与增长洞察。真实截图见[截图目录](../assets/dashboard/README.md)。
 
-Planned pages: activity overview, funnel definitions, session cart outcomes and future retention/value analysis. Import reviewed aggregate outputs only after metric reconciliation. No PBIX file or dashboard screenshot has been produced for this repository.
+本次只做原字节复制、模型只读审计与说明整理，没有改写PBIX内部结构。旧bi、bi_formatted、bi_subtitles_fixed、bi_redesigned原件和布局加工脚本已归档到本地忽略目录，避免多版本混用。
+
+## 数据源与百分比
+
+看板内嵌的是13张小型汇总表而非近2,000万行明细。原查询使用localhost MySQL连接，分解图另有手工录入汇总。下载后请在Power BI Desktop自行设置服务器并登录。公开仓库不提供任何数据库账号、密码或原始明细。
+
+SQL比例已乘以100；[百分比度量示例](percentage_measures.dax)除以100后采用百分比格式。示例仅针对单行bi_conversion_kpi，不适用于对月度比率任意求和。技术字段与度量名称保持原值，显示层可以改中文。
+
+## 已知快照问题
+
+第1页总用户使用旧三类行为汇总值1,638,498，最终全行为口径为1,639,358；对应视图SQL已修正，PBIX需更新来源并刷新。第2页87.29%卡片和月度图例有误标；模型瀑布图来自手工汇总。具体步骤见[看板核对与待办](../docs/看板核对与待办.md)。
+
+请把这份PBIX视为已完成看板的可打开快照，而不是本次已全面修正和重新渲染的版本。文件只有约134KB，经过模型与可解析连接元数据审计后纳入仓库；不需要Git LFS。

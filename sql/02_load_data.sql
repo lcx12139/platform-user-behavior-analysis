@@ -1,13 +1,9 @@
--- Import five CSVs by POSITION, supporting legacy and standardized headers. CRLF required.
--- Existing empty-session import behavior is preserved; see methodology before session analysis.
--- Requires client/server local_infile enabled. Inspect SHOW WARNINGS after EACH load.
--- Never run twice against a populated fact table: duplicate loads are not prevented.
--- MySQL 8.0+. Run in numeric order on a fresh database; do not blindly rerun loads.
+-- 分析目的：按位置导入五个月 CSV；支持旧字段名，换行必须为 CRLF。
+-- 仅用于空表；每月导入后立即执行 SHOW WARNINGS，禁止对已有数据重复导入。
+-- 会话空字符串沿用历史导入行为；请按指标口径文档检查 NULL 与空字符串。
+-- 不自动删除已有数据或汇总表；已有库请仅执行结果查询部分。
 USE user_behavior_analysis;
 
--- =========================
--- 2019-Dec
--- =========================
 LOAD DATA LOCAL INFILE
 'D:/data_analysis/data/cleaned/2019-Dec-cleaned.csv'
 INTO TABLE user_behavior_analysis.user_behavior
@@ -32,9 +28,6 @@ IGNORE 1 ROWS
     is_weekend
 );
 
--- =========================
--- 2019-Oct
--- =========================
 
 LOAD DATA LOCAL INFILE
 'D:/data_analysis/data/cleaned/2019-Oct-cleaned.csv'
@@ -59,9 +52,6 @@ IGNORE 1 ROWS
     event_weekday,
     is_weekend
 );
--- =========================
--- 2019-Nov
--- =========================
 
 LOAD DATA LOCAL INFILE
 'D:/data_analysis/data/cleaned/2019-Nov-cleaned.csv'
@@ -86,9 +76,6 @@ IGNORE 1 ROWS
     event_weekday,
     is_weekend
 );
--- =========================
--- 2020-Jan
--- =========================
 
 LOAD DATA LOCAL INFILE
 'D:/data_analysis/data/cleaned/2020-Jan-cleaned.csv'
@@ -113,9 +100,6 @@ IGNORE 1 ROWS
     event_weekday,
     is_weekend
 );
--- =========================
--- 2020-Feb
--- =========================
 
 LOAD DATA LOCAL INFILE
 'D:/data_analysis/data/cleaned/2020-Feb-cleaned.csv'

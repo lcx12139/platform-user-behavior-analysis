@@ -1,4 +1,4 @@
-"""Monthly cleaning: preserve all behavior, deduplicate after normalization."""
+"""按月清洗：保留全部行为，规范化后对完整记录去重。"""
 import argparse
 import pandas as pd
 from pathlib import Path
@@ -25,7 +25,7 @@ files = [
 def clean_file(filename, raw_dir, clean_dir):
     output_path = clean_dir / filename.replace(".csv", "-cleaned.csv")
     if output_path.exists():
-        raise FileExistsError(f"Refusing to overwrite {output_path}")
+        raise FileExistsError(f"拒绝覆盖已有文件 {output_path}")
 
     input_path = raw_dir / filename
 
@@ -214,15 +214,15 @@ def main():
     parser.add_argument('--output-dir', type=Path, default=ROOT / 'data/cleaned')
     args = parser.parse_args()
     raw_dir, clean_dir = args.raw_dir, args.output_dir
-    # Validate all targets before writing; never overwrite existing data.
+    # 写入前检查全部目标，禁止覆盖已有数据。
     for filename in files:
         if not (raw_dir / filename).is_file():
-            parser.error(f'Missing input: {raw_dir / filename}')
+            parser.error(f'缺少输入文件： {raw_dir / filename}')
     targets = [clean_dir / name.replace('.csv', '-cleaned.csv') for name in files]
     targets.append(clean_dir / 'cleaning_summary.csv')
     for target in targets:
         if target.exists():
-            parser.error(f'Refusing to overwrite {target}; choose a new --output-dir')
+            parser.error(f'拒绝覆盖已有文件 {target}；请指定新的 --output-dir')
     clean_dir.mkdir(parents=True, exist_ok=True)
     summary = [clean_file(name, raw_dir, clean_dir) for name in files]
     pd.DataFrame(summary).to_csv(targets[-1], index=False, mode='x', lineterminator='\r\n')

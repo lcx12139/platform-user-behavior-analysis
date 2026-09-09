@@ -1,5 +1,5 @@
--- First observed within this dataset; NOT registration or acquisition date.
--- MySQL 8.0+. Run in numeric order on a fresh database; do not blindly rerun loads.
+-- 分析目的：计算观察期首次活跃用户；不代表真实注册或获客时间。
+-- 不自动删除已有数据或汇总表；已有库请仅执行结果查询部分。
 USE user_behavior_analysis;
 
 WITH first_observed AS (

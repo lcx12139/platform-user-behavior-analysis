@@ -1,5 +1,5 @@
--- Daily/monthly activity and daily Purchase Revenue, ARPU, ARPPU. No order_id or quantity.
--- MySQL 8.0+. Run in numeric order on a fresh database; do not blindly rerun loads.
+-- 分析目的：计算活跃、购买、收入及客单指标。最终口径：ARPPU 分母仅为正价格购买用户。
+-- 不自动删除已有数据或汇总表；已有库请仅执行结果查询部分。
 USE user_behavior_analysis;
 
 SELECT COUNT(DISTINCT user_id) AS observed_users FROM user_behavior;
@@ -9,10 +9,8 @@ SELECT event_date, COUNT(DISTINCT user_id) AS dau
 FROM user_behavior GROUP BY event_date ORDER BY event_date;
 SELECT event_month, event_type, COUNT(*) AS event_count
 FROM user_behavior GROUP BY event_month, event_type ORDER BY event_month, event_type;
--- Behavior-based purchasing users include all purchase records.
 SELECT event_date, COUNT(DISTINCT user_id) AS purchasing_users
 FROM user_behavior WHERE event_type = 'purchase' GROUP BY event_date ORDER BY event_date;
--- Amount metrics: positive-price purchase events only. ARPPU denominator confirmed by owner.
 WITH daily AS (
     SELECT event_date, COUNT(DISTINCT user_id) AS active_users,
         COUNT(DISTINCT CASE WHEN event_type = 'purchase' AND price > 0 THEN user_id END) AS positive_price_buyers,

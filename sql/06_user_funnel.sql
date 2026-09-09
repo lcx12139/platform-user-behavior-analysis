@@ -1,5 +1,5 @@
--- User-level BROAD funnel; co-occurrence, no time ordering or session requirement.
--- MySQL 8.0+. Run in numeric order on a fresh database; do not blindly rerun loads.
+-- 分析目的：用户级宽口径漏斗：观察期内行为共现，不要求时序、同会话或同商品。
+-- 不自动删除已有数据或汇总表；已有库请仅执行结果查询部分。
 USE user_behavior_analysis;
 
 CREATE TABLE user_funnel_summary (

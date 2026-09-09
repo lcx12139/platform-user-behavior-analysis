@@ -1,5 +1,5 @@
--- User-level STRICT first-event approximation; strictly increasing first timestamps.
--- MySQL 8.0+. Run in numeric order on a fresh database; do not blindly rerun loads.
+-- 分析目的：用户级首次时间严格近似漏斗：首次浏览 < 首次加购 < 首次购买。
+-- 不自动删除已有数据或汇总表；已有库请仅执行结果查询部分。
 USE user_behavior_analysis;
 
 CREATE TABLE user_first_event (

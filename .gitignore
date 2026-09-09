@@ -1,4 +1,4 @@
-# Behavioral logs, exports and database files must remain local.
+# 原始明细、清洗数据、凭据、数据库文件和中间产物仅保存在本地。
 /data/raw/
 /data/cleaned/
 *.csv
@@ -50,5 +50,14 @@ database_config.*
 *.log
 *.pbix
 *.pbit
-# Deliberately reviewed, aggregate-only exception (397 bytes originally).
+# 经过审查的清洗汇总例外，不包含行为明细。
 !/docs/cleaning_summary.csv
+
+.ipynb_checkpoints/
+*.tmp
+~$*
+*.bak
+*.dmp
+*.etl
+# 仅允许上传已审计的最新看板；历史 PBIX 继续忽略。
+!/powerbi/用户行为与增长分析.pbix

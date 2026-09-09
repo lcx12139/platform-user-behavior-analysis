@@ -1,4 +1,4 @@
-"""Read-only quality checks; behavior rows are never filtered or rewritten."""
+"""只读数据质量检查，不过滤或重写行为记录。"""
 import argparse
 import json
 from collections import Counter
@@ -13,7 +13,7 @@ STRING_DTYPES = {name: "string" for name in (
 
 
 def check_file(path: Path, chunksize: int = 250_000) -> dict:
-    """Bound memory while retaining the original February zero-price breakdowns."""
+    """分块读取控制内存，保留原有二月零价格分布检查。"""
     totals = Counter()
     breakdowns = {key: Counter() for key in (
         "event_type", "brand", "product_id", "event_date"
@@ -47,10 +47,10 @@ def main() -> None:
     parser.add_argument("--chunksize", type=int, default=250_000)
     args = parser.parse_args()
     if args.chunksize < 1:
-        parser.error("--chunksize must be positive")
+        parser.error("--chunksize 必须为正数")
     files = args.files or sorted((ROOT / "data/cleaned").glob("*-cleaned.csv"))
     if not files:
-        parser.error("No cleaned CSV files found")
+        parser.error("未找到清洗后的 CSV 文件")
     for path in files:
         print(json.dumps(check_file(path, args.chunksize), ensure_ascii=False, indent=2))
 

@@ -1,5 +1,5 @@
--- Confirmed target indexes only. Inspect SHOW INDEX first; run only missing CREATE statements.
--- MySQL 8.0+. Run in numeric order on a fresh database; do not blindly rerun loads.
+-- 分析目的：配置已确认的明细表索引；先执行 SHOW INDEX，仅运行缺少的索引语句。
+-- 不自动删除已有数据或汇总表；已有库请仅执行结果查询部分。
 USE user_behavior_analysis;
 
 CREATE INDEX idx_user_date ON user_behavior (user_id, event_date);

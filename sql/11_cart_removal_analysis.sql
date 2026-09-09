@@ -1,5 +1,5 @@
--- Remove means FIRST remove after FIRST cart. Monthly attribution = first-cart month.
--- MySQL 8.0+. Run in numeric order on a fresh database; do not blindly rerun loads.
+-- 分析目的：移除指首次移除晚于首次加购；月度归属为首次加购月份。静默为首次时间近似分类。
+-- 不自动删除已有数据或汇总表；已有库请仅执行结果查询部分。
 USE user_behavior_analysis;
 
 WITH cart_behavior AS (
@@ -11,7 +11,7 @@ WITH cart_behavior AS (
             END
         ) AS cart_sessions,
 
-        -- Cart之后出现Purchase
+        -- 首次购买晚于首次加购
         COUNT(
             CASE
                 WHEN first_cart_time IS NOT NULL
@@ -20,7 +20,7 @@ WITH cart_behavior AS (
             END
         ) AS converted_sessions,
 
-        -- Cart之后没有Purchase
+        -- 不满足首次购买晚于首次加购
         COUNT(
             CASE
                 WHEN first_cart_time IS NOT NULL
@@ -32,7 +32,7 @@ WITH cart_behavior AS (
             END
         ) AS abandoned_sessions,
 
-        -- Cart之后出现Remove
+        -- 首次移除晚于首次加购
         COUNT(
             CASE
                 WHEN first_cart_time IS NOT NULL

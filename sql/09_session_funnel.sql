@@ -1,5 +1,5 @@
--- Session-level STRICT first-event approximation; original user_session-only key and NULL filter retained.
--- MySQL 8.0+. Run in numeric order on a fresh database; do not blindly rerun loads.
+-- 分析目的：Session（访问会话）级首次时间严格近似漏斗；沿用会话标识单键及非 NULL 过滤。
+-- 不自动删除已有数据或汇总表；已有库请仅执行结果查询部分。
 USE user_behavior_analysis;
 
 CREATE TABLE session_first_event (
