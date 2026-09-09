@@ -1,0 +1,2 @@
+CREATE DATABASE IF NOT EXISTS user_behavior_analysis
+CHARACTER SET utf8mb4;
