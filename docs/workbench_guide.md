@@ -6,7 +6,7 @@
 
 不要重新执行02导入五个月CSV；它会追加数据。06—09、12、15、16同时包含构建汇总与结果查询，已有表时只选中完整的WITH…SELECT或SELECT运行。09已有first_remove_time时不要再次ALTER。03只运行实际缺失的索引语句。
 
-本次总用户口径修复位于19的`CREATE OR REPLACE VIEW bi_overall_kpi AS ...;`完整语句。该变更只更换视图定义；在Workbench执行后还需在Power BI刷新对应MySQL查询；若另行改成CSV导入，则文件不会自动随视图更新。
+总用户视图定义位于19的`CREATE OR REPLACE VIEW bi_overall_kpi AS ...;`完整语句。该变更只更换视图定义；在Workbench执行后还需在Power BI刷新对应MySQL查询；若另行改成CSV导入，则文件不会自动随视图更新。
 
 新增`bi_conversion_decomposition`沿用17的分解公式，可替代看板手工数据。20用于只读核对总用户、正价格购买及汇总输出；运行大表COUNT可能耗时，不要重复启动同一查询。
 
